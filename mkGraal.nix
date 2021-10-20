@@ -114,7 +114,7 @@ let
       copyClibrariesToOut = basepath: ''
         # provide libraries needed for static compilation
         for f in ${zlib.static}/lib/* ${musl}/lib/*; do
-          ln -sf $f ${basepath}/${platform}/$(basename $f)
+          ln -s $f ${basepath}/${platform}/$(basename $f)
         done
       '';
       copyClibrariesToLib = ''
