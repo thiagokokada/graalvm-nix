@@ -73,5 +73,9 @@
 
         devShell = import ./shell.nix { inherit pkgs; };
       }
-    );
+    ) // {
+      overlay = (final: prev: {
+        graalvmCEPackages = self.packages;
+      });
+    };
 }
