@@ -7,6 +7,6 @@ let
 in
 mkShell {
   buildInputs = [
-    graalvmCEPackages.graalvm11-ce
+    graalvmCEPackages.graalvm11-ce-musl
   ];
 }
