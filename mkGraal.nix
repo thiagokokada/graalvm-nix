@@ -11,6 +11,7 @@
 , autoPatchelfHook
 , setJavaClassPath
 , makeWrapper
+, writeShellScriptBin
   # minimum dependencies
 , Foundation
 , alsa-lib
@@ -73,6 +74,10 @@ let
       xorg.libXrender
       xorg.libXtst
       zlib
+    ] ++ lib.optionals useMusl [
+      musl.dev
+      # GraalVM 21.3.0+ expects musl-gcc as <system>-musl-gcc
+      (writeShellScriptBin "${stdenv.system}-musl-gcc" ''${musl.dev}/bin/musl-gcc "$@"'')
     ];
 
     # Workaround for libssl.so.10 wanted by TruffleRuby
@@ -188,12 +193,6 @@ let
     dontStrip = true;
 
     preFixup = ''
-      ${lib.optionalString useMusl ''
-          # GraalVM 21.3.0 expects `musl-gcc` as `<system>-musl-gcc`
-          mkdir -p "$out/musl/bin"
-          ln -s "${musl.dev}/bin/musl-gcc" "$out/musl/bin/${stdenv.system}-musl-gcc"
-        ''
-      }
       # We cannot use -exec since wrapProgram is a function but not a
       # command.
       #
@@ -202,10 +201,7 @@ let
       for bin in $( find "$out" -executable -type f -not -path '*/languages/ruby/lib/gems/*' -not -name jspawnhelper ); do
         if patchelf --print-interpreter "$bin" &> /dev/null || head -n 1 "$bin" | grep '^#!' -q; then
           wrapProgram "$bin" \
-            --prefix LD_LIBRARY_PATH : "${runtimeLibraryPath}" \
-            ${lib.optionalString useMusl
-              ''--prefix PATH : "$out/musl/bin:${musl.dev}/bin"''
-             }
+            --prefix LD_LIBRARY_PATH : "${runtimeLibraryPath}"
         fi
       done
 
