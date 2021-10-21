@@ -1,4 +1,4 @@
-{ version, javaVersion, platforms }:
+{ version, javaVersion, platforms, useMusl ? false }:
 
 { stdenv, lib, fetchurl, autoPatchelfHook, setJavaClassPath, makeWrapper
 # minimum dependencies
@@ -8,6 +8,8 @@
 , cups
 # runtime dependencies for GTK+ Look and Feel
 , gtkSupport ? true, cairo, glib, gtk3 }:
+
+assert useMusl -> stdenv.isLinux;
 
 let
   platform = {
@@ -113,8 +115,15 @@ let
     installPhase = let
       copyClibrariesToOut = basepath: ''
         # provide libraries needed for static compilation
-        for f in ${zlib.static}/lib/* ${musl}/lib/*; do
-          ln -s $f ${basepath}/${platform}/$(basename $f)
+        ${
+          if useMusl then
+            # musl will overwrite some glibc.static symbolic links, so static linking with glibc
+            # will not work
+            "for f in ${glibc}/lib/* ${glibc.static}/lib/* ${zlib.static}/lib/* ${musl}/lib/*; do"
+          else
+            "for f in ${glibc}/lib/* ${glibc.static}/lib/* ${zlib.static}/lib/*; do"
+        }
+          ln -sf $f ${basepath}/${platform}/$(basename $f)
         done
       '';
       copyClibrariesToLib = ''
@@ -159,7 +168,7 @@ let
     dontStrip = true;
 
     preFixup = ''
-      ${lib.optionalString stdenv.isLinux ''
+      ${lib.optionalString useMusl ''
           # GraalVM expects `musl-gcc` as `<system>-musl-gcc`
           mkdir -p "$out/musl/bin"
           ln -s "${musl.dev}/bin/musl-gcc" "$out/musl/bin/${stdenv.system}-musl-gcc"
@@ -174,7 +183,7 @@ let
         if patchelf --print-interpreter "$bin" &> /dev/null || head -n 1 "$bin" | grep '^#!' -q; then
           wrapProgram "$bin" \
             --prefix LD_LIBRARY_PATH : "${runtimeLibraryPath}" \
-            ${lib.optionalString stdenv.isLinux
+            ${lib.optionalString useMusl
               ''--prefix PATH : "$out/musl/bin"''
              }
         fi
@@ -215,16 +224,20 @@ let
       # run on JVM with Graal Compiler
       $out/bin/java -XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCI -XX:+UseJVMCICompiler HelloWorld | fgrep 'Hello World'
 
-      # # Ahead-Of-Time compilation
-      # $out/bin/native-image -H:-CheckToolchain -H:+ReportExceptionStackTraces --no-server HelloWorld
-      # ./helloworld | fgrep 'Hello World'
+      ${# --static flag doesn't work for darwin
+        lib.optionalString (stdenv.isLinux && !useMusl) ''
+          echo "Ahead-Of-Time compilation"
+          $out/bin/native-image -H:-CheckToolchain -H:+ReportExceptionStackTraces --no-server HelloWorld
+          ./helloworld | fgrep 'Hello World'
+
+          echo "Ahead-Of-Time compilation with --static"
+          $out/bin/native-image --no-server --static HelloWorld
+          ./helloworld | fgrep 'Hello World'
+        ''
+      }
 
       ${# --static flag doesn't work for darwin
-        lib.optionalString stdenv.isLinux ''
-          # echo "Ahead-Of-Time compilation with --static"
-          # $out/bin/native-image --no-server --static HelloWorld
-          # ./helloworld | fgrep 'Hello World'
-
+        lib.optionalString (stdenv.isLinux && useMusl) ''
           echo "Ahead-Of-Time compilation with --static and --libc=musl"
           $out/bin/native-image --no-server --libc=musl --static HelloWorld
           ./helloworld | fgrep 'Hello World'

@@ -14,6 +14,13 @@ in
     platforms = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" ];
   };
 
+  graalvm11-ce-musl = mkGraal rec {
+    version = "21.3.0";
+    javaVersion = "11";
+    platforms = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" ];
+    useMusl = true;
+  };
+
   # TODO: fix aarch64-linux, failing during Native Image compilation
   # "Caused by: java.io.IOException: Cannot run program
   # "/nix/store/1q1mif7h3lgxdaxg6j39hli5azikrfla-gcc-wrapper-9.3.0/bin/gcc" (in
@@ -23,5 +30,12 @@ in
     version = "21.3.0";
     javaVersion = "17";
     platforms = [ "x86_64-linux" "x86_64-darwin" ];
+  };
+
+  graalvm17-ce-musl = mkGraal rec {
+    version = "21.3.0";
+    javaVersion = "17";
+    platforms = [ "x86_64-linux" "x86_64-darwin" ];
+    useMusl = true;
   };
 }
