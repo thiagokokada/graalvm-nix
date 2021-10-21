@@ -58,6 +58,11 @@
         };
 
         defaultApp = self.apps.${system}.native-image;
+
+        devShell = pkgs.mkShell {
+          name = "graalvm11-ce";
+          buildInputs = [ self.defaultPackage.${system} ];
+        };
       }
     );
 }
