@@ -60,7 +60,8 @@ let
         # To update hashes.nix file, run `./update.sh <graalvm-ce-version>`
         maybeFetchUrl = url: if url.sha256 != null then (fetchurl url) else null;
       in
-      (lib.remove null (map maybeFetchUrl (hashes { inherit javaVersionPlatform; })));
+      (lib.remove null
+        (map maybeFetchUrl (hashes { inherit javaVersionPlatform; })));
 
     buildInputs = lib.optionals stdenv.isLinux [
       alsa-lib # libasound.so wanted by lib/libjsound.so

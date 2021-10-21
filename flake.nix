@@ -23,10 +23,10 @@
 
         # TODO: generate this programatically
         apps = rec {
-          "11/glibc/current/native-image" = self.apps.${system}."11/glibc/21_3_0/native-image";
-          "11/musl/current/native-image" = self.apps.${system}."11/musl/21_3_0/native-image";
-          "17/glibc/current/native-image" = self.apps.${system}."17/glibc/21_3_0/native-image";
-          "17/musl/current/native-image" = self.apps.${system}."17/musl/21_3_0/native-image";
+          "11/glibc/latest/native-image" = self.apps.${system}."11/glibc/21_3_0/native-image";
+          "11/musl/latest/native-image" = self.apps.${system}."11/musl/21_3_0/native-image";
+          "17/glibc/latest/native-image" = self.apps.${system}."17/glibc/21_3_0/native-image";
+          "17/musl/latest/native-image" = self.apps.${system}."17/musl/21_3_0/native-image";
 
           "11/glibc/21_2_0/native-image" = {
             type = "app";
@@ -69,7 +69,7 @@
           };
         };
 
-        defaultApp = self.apps.${system}."11/musl/current/native-image";
+        defaultApp = self.apps.${system}."11/musl/latest/native-image";
 
         devShell = import ./shell.nix { inherit pkgs; };
       }
