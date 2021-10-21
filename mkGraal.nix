@@ -1,13 +1,36 @@
-{ version, javaVersion, platforms, useMusl ? false }:
+{ version
+, javaVersion
+, platforms
+, hashes ? import ./hashes.nix
+, useMusl ? false
+}:
 
-{ stdenv, lib, fetchurl, autoPatchelfHook, setJavaClassPath, makeWrapper
-# minimum dependencies
-, Foundation, alsa-lib, fontconfig, freetype, glibc, openssl, perl, unzip, xorg
-, zlib, musl
-# runtime dependencies
+{ stdenv
+, lib
+, fetchurl
+, autoPatchelfHook
+, setJavaClassPath
+, makeWrapper
+  # minimum dependencies
+, Foundation
+, alsa-lib
+, fontconfig
+, freetype
+, glibc
+, openssl
+, perl
+, unzip
+, xorg
+, zlib
+, musl
+  # runtime dependencies
 , cups
-# runtime dependencies for GTK+ Look and Feel
-, gtkSupport ? true, cairo, glib, gtk3 }:
+  # runtime dependencies for GTK+ Look and Feel
+, gtkSupport ? true
+, cairo
+, glib
+, gtk3
+}:
 
 assert useMusl -> stdenv.isLinux;
 
@@ -36,10 +59,7 @@ let
         # To update hashes.nix file, run `./update.sh <graalvm-ce-version>`
         maybeFetchUrl = url: if url.sha256 != null then (fetchurl url) else null;
       in
-      (lib.remove null
-        (map
-          maybeFetchUrl
-          (import ./hashes.nix { inherit javaVersionPlatform; })));
+      (lib.remove null (map maybeFetchUrl (hashes { inherit javaVersionPlatform; })));
 
     buildInputs = lib.optionals stdenv.isLinux [
       alsa-lib # libasound.so wanted by lib/libjsound.so
@@ -112,56 +132,58 @@ let
 
     outputs = [ "out" "lib" ];
 
-    installPhase = let
-      copyClibrariesToOut = basepath: ''
-        # provide libraries needed for static compilation
-        ${
-          if useMusl then
-            "for f in ${musl.stdenv.cc.cc}/lib/* ${musl}/lib/* ${zlib.static}/lib/*; do"
-          else
-            "for f in ${glibc}/lib/* ${glibc.static}/lib/* ${zlib.static}/lib/*; do"
-        }
-          ln -s $f ${basepath}/${platform}/$(basename $f)
-        done
-      '';
-      copyClibrariesToLib = ''
-        # add those libraries to $lib output too, so we can use them with
-        # `native-image -H:CLibraryPath=''${graalvm11-ce.lib}/lib ...` and reduce
-        # closure size by not depending on GraalVM $out (that is much bigger)
+    installPhase =
+      let
+        copyClibrariesToOut = basepath: ''
+          # provide libraries needed for static compilation
+          ${
+            if useMusl then
+              "for f in ${musl.stdenv.cc.cc}/lib/* ${musl}/lib/* ${zlib.static}/lib/*; do"
+            else
+              "for f in ${glibc}/lib/* ${glibc.static}/lib/* ${zlib.static}/lib/*; do"
+          }
+            ln -s $f ${basepath}/${platform}/$(basename $f)
+          done
+        '';
+        copyClibrariesToLib = ''
+          # add those libraries to $lib output too, so we can use them with
+          # `native-image -H:CLibraryPath=''${graalvm11-ce.lib}/lib ...` and reduce
+          # closure size by not depending on GraalVM $out (that is much bigger)
+          mkdir -p $lib/lib
+          for f in ${glibc}/lib/*; do
+            ln -s $f $lib/lib/$(basename $f)
+          done
+        '';
+      in
+      {
+        "11-linux-amd64" = ''
+          ${copyClibrariesToOut "$out/lib/svm/clibraries"}
+
+          ${copyClibrariesToLib}
+        '';
+        "17-linux-amd64" = ''
+          ${copyClibrariesToOut "$out/lib/svm/clibraries"}
+
+          ${copyClibrariesToLib}
+        '';
+        "11-linux-aarch64" = ''
+          ${copyClibrariesToOut "$out/lib/svm/clibraries"}
+
+          ${copyClibrariesToLib}
+        '';
+        "17-linux-aarch64" = ''
+          ${copyClibrariesToOut "$out/lib/svm/clibraries"}
+
+          ${copyClibrariesToLib}
+        '';
+        "11-darwin-amd64" = "";
+        "17-darwin-amd64" = "";
+      }.${javaVersionPlatform} + ''
+        # ensure that $lib/lib exists to avoid breaking builds
         mkdir -p $lib/lib
-        for f in ${glibc}/lib/*; do
-          ln -s $f $lib/lib/$(basename $f)
-        done
+        # jni.h expects jni_md.h to be in the header search path.
+        ln -s $out/include/linux/*_md.h $out/include/
       '';
-    in {
-      "11-linux-amd64" = ''
-        ${copyClibrariesToOut "$out/lib/svm/clibraries"}
-
-        ${copyClibrariesToLib}
-      '';
-      "17-linux-amd64" = ''
-        ${copyClibrariesToOut "$out/lib/svm/clibraries"}
-
-        ${copyClibrariesToLib}
-      '';
-      "11-linux-aarch64" = ''
-        ${copyClibrariesToOut "$out/lib/svm/clibraries"}
-
-        ${copyClibrariesToLib}
-      '';
-      "17-linux-aarch64" = ''
-        ${copyClibrariesToOut "$out/lib/svm/clibraries"}
-
-        ${copyClibrariesToLib}
-      '';
-      "11-darwin-amd64" = "";
-      "17-darwin-amd64" = "";
-    }.${javaVersionPlatform} + ''
-      # ensure that $lib/lib exists to avoid breaking builds
-      mkdir -p $lib/lib
-      # jni.h expects jni_md.h to be in the header search path.
-      ln -s $out/include/linux/*_md.h $out/include/
-    '';
 
     dontStrip = true;
 
@@ -300,4 +322,5 @@ let
       ];
     };
   };
-in graalvmXXX-ce
+in
+graalvmXXX-ce
