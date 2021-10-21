@@ -117,13 +117,11 @@ let
         # provide libraries needed for static compilation
         ${
           if useMusl then
-            # musl will overwrite some glibc.static symbolic links, so static linking with glibc
-            # will not work
-            "for f in ${glibc}/lib/* ${glibc.static}/lib/* ${zlib.static}/lib/* ${musl}/lib/*; do"
+            "for f in ${musl.stdenv.cc.cc}/lib/* ${musl}/lib/* ${zlib.static}/lib/*; do"
           else
             "for f in ${glibc}/lib/* ${glibc.static}/lib/* ${zlib.static}/lib/*; do"
         }
-          ln -sf $f ${basepath}/${platform}/$(basename $f)
+          ln -s $f ${basepath}/${platform}/$(basename $f)
         done
       '';
       copyClibrariesToLib = ''
