@@ -189,7 +189,7 @@ let
 
     preFixup = ''
       ${lib.optionalString useMusl ''
-          # GraalVM expects `musl-gcc` as `<system>-musl-gcc`
+          # GraalVM 21.3.0 expects `musl-gcc` as `<system>-musl-gcc`
           mkdir -p "$out/musl/bin"
           ln -s "${musl.dev}/bin/musl-gcc" "$out/musl/bin/${stdenv.system}-musl-gcc"
         ''
@@ -204,7 +204,7 @@ let
           wrapProgram "$bin" \
             --prefix LD_LIBRARY_PATH : "${runtimeLibraryPath}" \
             ${lib.optionalString useMusl
-              ''--prefix PATH : "$out/musl/bin"''
+              ''--prefix PATH : "$out/musl/bin:${musl.dev}/bin"''
              }
         fi
       done

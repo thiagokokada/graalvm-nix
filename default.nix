@@ -14,11 +14,26 @@ in
     platforms = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" ];
   };
 
+  graalvm11-ce-21_2_0 = mkGraal rec {
+    version = "21.2.0";
+    javaVersion = "11";
+    platforms = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" ];
+    hashes = import ./hashes-21_2_0.nix;
+  };
+
   graalvm11-ce-musl = mkGraal rec {
     version = "21.3.0";
     javaVersion = "11";
     platforms = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" ];
     useMusl = true;
+  };
+
+  graalvm11-ce-musl-21_2_0 = mkGraal rec {
+    version = "21.2.0";
+    javaVersion = "11";
+    platforms = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" ];
+    useMusl = true;
+    hashes = import ./hashes-21_2_0.nix;
   };
 
   # TODO: fix aarch64-linux, failing during Native Image compilation
