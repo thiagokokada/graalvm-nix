@@ -24,29 +24,55 @@
 
         defaultPackage = self.packages.${system}.graalvm11-ce-musl;
 
-        apps = {
-          native-image-11 = {
+        # TODO: generate this programatically
+        apps = rec {
+          "11/glibc/current/native-image" = self.apps.${system}."11/glibc/21_3_0/native-image";
+          "11/musl/current/native-image" = self.apps.${system}."11/musl/21_3_0/native-image";
+          "17/glibc/current/native-image" = self.apps.${system}."17/glibc/21_3_0/native-image";
+          "17/musl/current/native-image" = self.apps.${system}."17/musl/21_3_0/native-image";
+
+          "11/glibc/21_2_0/native-image" = {
+            type = "app";
+            program = "${self.packages.${system}.graalvm11-ce-21_2_0}/bin/native-image";
+          };
+
+          "11/glibc/21_3_0/native-image" = {
             type = "app";
             program = "${self.packages.${system}.graalvm11-ce}/bin/native-image";
           };
 
-          native-image-11-musl = {
+          "11/musl/21_2_0/native-image" = {
+            type = "app";
+            program = "${self.packages.${system}.graalvm11-ce-musl-21_2_0}/bin/native-image";
+          };
+
+          "11/musl/21_3_0/native-image" = {
             type = "app";
             program = "${self.packages.${system}.graalvm11-ce-musl}/bin/native-image";
           };
 
-          native-image-17 = {
+          "17/glibc/21_2_0/native-image" = {
+            type = "app";
+            program = "${self.packages.${system}.graalvm17-ce-21_2_0}/bin/native-image";
+          };
+
+          "17/glibc/21_3_0/native-image" = {
             type = "app";
             program = "${self.packages.${system}.graalvm17-ce}/bin/native-image";
           };
 
-          native-image-17-musl = {
+          "17/musl/21_2_0/native-image" = {
+            type = "app";
+            program = "${self.packages.${system}.graalvm17-ce-musl-21_2_0}/bin/native-image";
+          };
+
+          "17/musl/21_3_0/native-image" = {
             type = "app";
             program = "${self.packages.${system}.graalvm17-ce-musl}/bin/native-image";
           };
         };
 
-        defaultApp = self.apps.${system}.native-image-11-musl;
+        defaultApp = self.apps.${system}."11/musl/current/native-image";
 
         devShell = pkgs.mkShell {
           name = "graalvm11-ce";
