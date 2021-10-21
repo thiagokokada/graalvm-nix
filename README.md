@@ -1,8 +1,10 @@
-# GraalVM-CE Flake for Nix
+# GraalVM derivations for Nix
 
-Usage (assuming you have `nix` already installed):
+## Usage (Flakes)
 
-```shellsession
+Assuming you have `nix` already installed:
+
+```sh
 # Not necessary if you're already are using nixUnstable
 $ nix-shell -p nixUnstable
 $ nix build --experimental-features 'nix-command flakes' "github:thiagokokada/graalvm-nix"
@@ -14,20 +16,19 @@ This will generate a `result` directory with the `graalvm11-ce` derivation with
 
 If you want `graalvm11-ce` with `glibc` support, you can use:
 
-```shellsession
+```sh
 $ nix build --experimental-features 'nix-command flakes' "github:thiagokokada/graalvm-nix#graalvm11-ce"
 ```
 
 If you want `graalvm17-ce` with `musl` support instead, you can use:
 
-```shellsession
+```sh
 $ nix build --experimental-features 'nix-command flakes' "github:thiagokokada/graalvm-nix#graalvm17-ce-musl"
 ```
 
 This Flake also export `native-image` as apps to be used with `nix run`. For example:
 
-
-```shellsession
+```sh
 $ nix run --experimental-features 'nix-command flakes' "github:thiagokokada/graalvm-nix"
 ```
 
@@ -36,13 +37,13 @@ to pass `--libc=musl`, otherwise the builds will fail!
 
 If you want `graalvm17-ce` "21.2.0" instead with `glibc`:
 
-```shellsession
+```sh
 $ nix run --experimental-features 'nix-command flakes' "github:thiagokokada/graalvm-nix#17/glibc/21_2_0/native-image"
 ```
 
 Or if you want `graalvm11-ce` "21.3.0" with `musl`:
 
-```shellsession
+```sh
 $ nix run --experimental-features 'nix-command flakes' "github:thiagokokada/graalvm-nix#11/musl/21_3_0/native-image"
 ```
 
