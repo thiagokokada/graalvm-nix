@@ -24,7 +24,6 @@
 
         defaultPackage = self.packages.${system}.graalvm11-ce-musl;
 
-
         apps = {
           native-image-11 = {
             type = "app";
