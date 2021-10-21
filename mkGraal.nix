@@ -11,6 +11,7 @@
 , autoPatchelfHook
 , setJavaClassPath
 , makeWrapper
+, writeShellScriptBin
   # minimum dependencies
 , Foundation
 , alsa-lib
@@ -43,6 +44,12 @@ let
 
   runtimeDependencies = [ cups ]
     ++ lib.optionals gtkSupport [ cairo glib gtk3 ];
+
+  muslPath = lib.makeBinPath [
+    musl.dev
+    # GraalVM 21.3.0+ expects musl-gcc as <system>-musl-gcc
+    (writeShellScriptBin "${stdenv.system}-musl-gcc" ''${musl.dev}/bin/musl-gcc "$@"'')
+  ];
 
   runtimeLibraryPath = lib.makeLibraryPath runtimeDependencies;
 
@@ -189,12 +196,6 @@ let
     dontStrip = true;
 
     preFixup = ''
-      ${lib.optionalString useMusl ''
-          # GraalVM 21.3.0 expects `musl-gcc` as `<system>-musl-gcc`
-          mkdir -p "$out/musl/bin"
-          ln -s "${musl.dev}/bin/musl-gcc" "$out/musl/bin/${stdenv.system}-musl-gcc"
-        ''
-      }
       # We cannot use -exec since wrapProgram is a function but not a
       # command.
       #
@@ -204,9 +205,7 @@ let
         if patchelf --print-interpreter "$bin" &> /dev/null || head -n 1 "$bin" | grep '^#!' -q; then
           wrapProgram "$bin" \
             --prefix LD_LIBRARY_PATH : "${runtimeLibraryPath}" \
-            ${lib.optionalString useMusl
-              ''--prefix PATH : "$out/musl/bin:${musl.dev}/bin"''
-             }
+            ${lib.optionalString useMusl ''--prefix PATH : "${muslPath}"''}
         fi
       done
 
