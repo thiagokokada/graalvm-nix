@@ -1,6 +1,7 @@
-{ lib, callPackage, Foundation }:
+{ pkgs ? import <nixpkgs> { }, ... }:
 
 let
+  inherit (pkgs) callPackage lib Foundation;
   mkGraal = opts: callPackage (import ./mkGraal.nix opts) {
     inherit Foundation;
   };

@@ -1,5 +1,5 @@
 {
-  description = "graalvm-musl";
+  description = "graalvm-nix";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
@@ -15,12 +15,9 @@
       system:
       let
         pkgs = import nixpkgs { inherit system; };
-        inherit (pkgs) lib callPackage Foundation;
       in
       {
-        packages = import ./default.nix {
-          inherit lib callPackage Foundation;
-        };
+        packages = import ./default.nix { inherit pkgs; };
 
         defaultPackage = self.packages.${system}.graalvm11-ce-musl;
 
