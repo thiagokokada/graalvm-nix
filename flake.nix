@@ -26,18 +26,28 @@
 
 
         apps = {
-          native-image = {
+          native-image-11 = {
             type = "app";
             program = "${self.packages.${system}.graalvm11-ce}/bin/native-image";
           };
 
-          native-image-musl = {
+          native-image-11-musl = {
             type = "app";
             program = "${self.packages.${system}.graalvm11-ce-musl}/bin/native-image";
           };
+
+          native-image-17 = {
+            type = "app";
+            program = "${self.packages.${system}.graalvm17-ce}/bin/native-image";
+          };
+
+          native-image-17-musl = {
+            type = "app";
+            program = "${self.packages.${system}.graalvm17-ce-musl}/bin/native-image";
+          };
         };
 
-        defaultApp = self.apps.${system}.native-image-musl;
+        defaultApp = self.apps.${system}.native-image-11-musl;
 
         devShell = pkgs.mkShell {
           name = "graalvm11-ce";
