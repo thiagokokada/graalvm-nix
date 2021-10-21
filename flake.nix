@@ -71,10 +71,7 @@
 
         defaultApp = self.apps.${system}."11/musl/current/native-image";
 
-        devShell = pkgs.mkShell {
-          name = "graalvm11-ce";
-          buildInputs = [ self.defaultPackage.${system} ];
-        };
+        devShell = import ./shell.nix { inherit pkgs; };
       }
     );
 }
