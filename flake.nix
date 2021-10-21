@@ -23,6 +23,41 @@
         };
 
         defaultPackage = self.packages.${system}.graalvm11-ce;
+
+
+        apps = {
+          java = {
+            type = "app";
+            program = "${self.defaultPackage.${system}}/bin/java";
+          };
+
+          javac = {
+            type = "app";
+            program = "${self.defaultPackage.${system}}/bin/javac";
+          };
+
+          graalpython = {
+            type = "app";
+            program = "${self.defaultPackage.${system}}/bin/graalpython";
+          };
+
+          ruby = {
+            type = "app";
+            program = "${self.defaultPackage.${system}}/bin/ruby";
+          };
+
+          irb = {
+            type = "app";
+            program = "${self.defaultPackage.${system}}/bin/irb";
+          };
+
+          native-image = {
+            type = "app";
+            program = "${self.defaultPackage.${system}}/bin/native-image";
+          };
+        };
+
+        defaultApp = self.apps.${system}.native-image;
       }
     );
 }
