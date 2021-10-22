@@ -26,30 +26,33 @@
             inherit (flake-utils.lib) mkApp;
             inherit (nixpkgs.lib) foldr recursiveUpdate;
 
-            mergeAttrs = attrsList: foldr recursiveUpdate { } attrsList;
+            mergeAttrsList = attrsList: foldr recursiveUpdate { } attrsList;
             mkApps = { drv, ns, names ? import ./bin-names.nix }:
-              (mergeAttrs
+              (mergeAttrsList
                 (map (name: { "${ns}/${name}" = (mkApp { inherit drv name; }); }) names));
           in
           with self.packages.${system};
-          {
-            "11/glibc/latest/native-image" = self.apps.${system}."11/glibc/21_3_0/native-image";
-            "11/musl/latest/native-image" = self.apps.${system}."11/musl/21_3_0/native-image";
+          mergeAttrsList [
+            {
+              "11/glibc/latest/native-image" = self.apps.${system}."11/glibc/21_3_0/native-image";
+              "11/musl/latest/native-image" = self.apps.${system}."11/musl/21_3_0/native-image";
 
-            "17/glibc/latest/native-image" = self.apps.${system}."17/glibc/21_3_0/native-image";
-            "17/musl/latest/native-image" = self.apps.${system}."17/musl/21_3_0/native-image";
-          } //
-          mkApps { drv = graalvm11-ce-21_2_0; ns = "11/glibc/21_2_0"; } //
-          mkApps { drv = graalvm11-ce; ns = "11/glibc/21_3_0"; } //
+              "17/glibc/latest/native-image" = self.apps.${system}."17/glibc/21_3_0/native-image";
+              "17/musl/latest/native-image" = self.apps.${system}."17/musl/21_3_0/native-image";
+            }
 
-          mkApps { drv = graalvm11-ce-musl-21_2_0; ns = "11/musl/21_2_0"; } //
-          mkApps { drv = graalvm11-ce-musl; ns = "11/musl/21_3_0"; } //
+            (mkApps { drv = graalvm11-ce-21_2_0; ns = "11/glibc/21_2_0"; })
+            (mkApps { drv = graalvm11-ce; ns = "11/glibc/21_3_0"; })
 
-          mkApps { drv = graalvm17-ce-21_2_0; ns = "17/glibc/21_2_0"; } //
-          mkApps { drv = graalvm17-ce; ns = "17/glibc/21_3_0"; } //
+            (mkApps { drv = graalvm11-ce-musl-21_2_0; ns = "11/musl/21_2_0"; })
+            (mkApps { drv = graalvm11-ce-musl; ns = "11/musl/21_3_0"; })
 
-          mkApps { drv = graalvm17-ce-musl-21_2_0; ns = "17/musl/21_2_0"; } //
-          mkApps { drv = graalvm17-ce-musl; ns = "17/musl/21_3_0"; };
+            (mkApps { drv = graalvm17-ce-21_2_0; ns = "17/glibc/21_2_0"; })
+            (mkApps { drv = graalvm17-ce; ns = "17/glibc/21_3_0"; })
+
+            (mkApps { drv = graalvm17-ce-musl-21_2_0; ns = "17/musl/21_2_0"; })
+            (mkApps { drv = graalvm17-ce-musl; ns = "17/musl/21_3_0"; })
+          ];
 
         defaultApp = self.apps.${system}."11/musl/latest/native-image";
 
