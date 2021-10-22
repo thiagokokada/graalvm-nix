@@ -35,12 +35,12 @@ $ nix build --experimental-features 'nix-command flakes' "github:thiagokokada/gr
 ```
 
 This will generate a `result` directory with the `graalvm11-ce` derivation with
-`musl` support by default. For example, you can find the GraalVM binaries on
+`glibc` support by default. For example, you can find the GraalVM binaries on
 `result/bin`.
 
 You can edit your `/etc/nix/nix.conf` or `~/.config/nix/nix.conf` file and
 add the following line to avoid having to pass `--experimental-features` flag
-everywhere:
+every time:
 
 ```ini
 experimental-features = nix-command flakes
