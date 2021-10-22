@@ -54,7 +54,7 @@
             (mkApps { drv = graalvm17-ce-musl; ns = "17/musl/21_3_0"; })
           ];
 
-        defaultApp = self.apps.${system}."11/musl/latest/native-image";
+        defaultApp = self.apps.${system}."11/glibc/latest/native-image";
 
         devShell = import ./shell.nix { inherit pkgs; };
       }

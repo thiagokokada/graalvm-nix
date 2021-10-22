@@ -60,31 +60,39 @@ If you want `graalvm17-ce` with `musl` support instead, you can use:
 $ nix build "github:thiagokokada/graalvm-nix#graalvm17-ce-musl"
 ```
 
-This Flake also export `native-image` as apps to be used with `nix run`. For example:
+This Flake also export GraalVM binaries as apps to be used with `nix run`. For
+example:
 
 ```sh
 $ nix run "github:thiagokokada/graalvm-nix"
 ```
 
-Will run `native-image` for `graalvm11-ce` with support for `musl`. Don't forget
-to pass `--libc=musl`, otherwise the builds will fail!
-
-If you want `graalvm17-ce` `21.2.0` instead with `glibc`:
+Will run `native-image` for the latest supported version of `graalvm11-ce` with
+support for `glibc`. This is equivalent to:
 
 ```sh
-$ nix run "github:thiagokokada/graalvm-nix#17/glibc/21_2_0/native-image"
+$ nix run "github:thiagokokada/graalvm-nix#11/glibc/latest/native-image"
 ```
 
-Or if you want `graalvm11-ce` `21.3.0` with `musl`:
+If you want `graalpython` on `graalvm17-ce` `21.2.0` instead with `musl`:
 
 ```sh
-$ nix run "github:thiagokokada/graalvm-nix#11/musl/21_3_0/native-image"
+$ nix run "github:thiagokokada/graalvm-nix#17/musl/21_2_0/graalpython"
 ```
 
-Keep in mind `musl` variations only makes sense on Linux. You should use
-non-musl variations on macOS.
+Or if you want `ruby` `graalvm11-ce` `21.3.0` with `musl`:
+
+```sh
+$ nix run "github:thiagokokada/graalvm-nix#11/musl/21_3_0/ruby"
+```
+
+Keep in mind `musl` variations only works on Linux, and also only makes sense if
+you want to use `native-image --static --libc=musl`. Otherwise both variations
+should be equal. You should use non-musl variations on macOS.
 
 ## Known issues
 
 `musl` variations must have the `--libc=musl` flag passed to `native-image`,
 otherwise the build will fail with linking errors.
+
+`irb` on GraalVM 21.3.0 is broken on all platforms.
