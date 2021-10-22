@@ -9,7 +9,7 @@
   outputs = { self, nixpkgs, flake-utils, ... }:
     {
       overlay = final: prev: {
-        i3pyblocks = self.defaultPackage;
+        graalvmCEPackages = self.packages;
       };
     } // flake-utils.lib.eachDefaultSystem (
       system:
@@ -54,9 +54,5 @@
 
         devShell = import ./shell.nix { inherit pkgs; };
       }
-    ) // {
-      overlay = (final: prev: {
-        graalvmCEPackages = self.packages;
-      });
-    };
+    );
 }
