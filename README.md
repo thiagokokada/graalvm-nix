@@ -86,6 +86,8 @@ Or if you want `ruby` `graalvm11-ce` `21.3.0` with `musl`:
 $ nix run "github:thiagokokada/graalvm-nix#11/musl/21_3_0/ruby"
 ```
 
+If you want to check a list of all available apps, see `bin-names.nix` file.
+
 Keep in mind `musl` variations only works on Linux, and also only makes sense if
 you want to use `native-image --static --libc=musl`. Otherwise both variations
 should be equal. You should use non-musl variations on macOS.
