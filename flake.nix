@@ -27,7 +27,7 @@
             inherit (nixpkgs.lib) foldr recursiveUpdate;
 
             mergeAttrsList = attrsList: foldr recursiveUpdate { } attrsList;
-            mkApps = { drv, ns, names ? import ./bin-names.nix }:
+            mkApps = { drv, ns, names ? import ./resources/bin-names.nix }:
               (mergeAttrsList
                 (map (name: { "${ns}/${name}" = (mkApp { inherit drv name; }); }) names));
           in

@@ -10,7 +10,7 @@ if [[ -z "${1:-}" ]]; then
   exit 1
 else
   readonly new_version="$1"
-  readonly file="${2:-hashes.nix}"
+  readonly file="${2:-./resources/hashes.nix}"
 fi
 
 info() { echo "[INFO] $*"; }

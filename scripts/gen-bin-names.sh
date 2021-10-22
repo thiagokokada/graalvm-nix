@@ -3,7 +3,7 @@
 
 set -euo pipefail
 
-readonly file="${1:-bin-names.nix}"
+readonly file="${1:-./resources/bin-names.nix}"
 readonly out_path="$(nix --experimental-features 'nix-command flakes' build . --json --no-link | jq -r '.[0].outputs.out')"
 
 {

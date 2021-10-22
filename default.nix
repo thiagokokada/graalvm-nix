@@ -19,7 +19,7 @@ in
     version = "21.2.0";
     javaVersion = "11";
     platforms = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" ];
-    hashes = import ./hashes-21_2_0.nix;
+    hashes = import ./resources/hashes-21_2_0.nix;
   };
 
   graalvm11-ce-musl = mkGraal rec {
@@ -34,7 +34,7 @@ in
     javaVersion = "11";
     platforms = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" ];
     useMusl = true;
-    hashes = import ./hashes-21_2_0.nix;
+    hashes = import ./resources/hashes-21_2_0.nix;
   };
 
   # TODO: fix aarch64-linux, failing during Native Image compilation

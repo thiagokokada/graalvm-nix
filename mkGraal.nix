@@ -1,7 +1,7 @@
 { version
 , javaVersion
 , platforms
-, hashes ? import ./hashes.nix
+, hashes ? import ./resources/hashes.nix
 , useMusl ? false
 }:
 
