@@ -93,6 +93,11 @@ Keep in mind `musl` variations only works on Linux, and also only makes sense if
 you want to use `native-image --static --libc=musl`. Otherwise both variations
 should be equal. You should use non-musl variations on macOS.
 
+## Example
+
+See [this PR](https://github.com/thiagokokada/babashka/pull/1) for an example on
+how to use this repository to compile GraalVM applications.
+
 ## Known issues
 
 `musl` variations must have the `--libc=musl` flag passed to `native-image`,
