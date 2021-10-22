@@ -96,7 +96,9 @@ should be equal. You should use non-musl variations on macOS.
 ## Example
 
 See [this PR](https://github.com/thiagokokada/babashka/pull/1) for an example on
-how to use this repository to compile GraalVM applications.
+how to convert a non-trivial GraalVM native-image application
+([Babashka](https://github.com/babashka/babashka/)) to use this repository
+instead.
 
 ## Known issues
 
