@@ -19,7 +19,7 @@
       {
         packages = import ./default.nix { inherit pkgs; };
 
-        defaultPackage = self.packages.${system}.graalvm11-ce-musl;
+        defaultPackage = self.packages.${system}.graalvm11-ce;
 
         apps =
           let
