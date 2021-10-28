@@ -9,7 +9,7 @@
   outputs = { self, nixpkgs, flake-utils, ... }:
     {
       overlay = final: prev: {
-        graalvmCEPackages = self.packages;
+        graalvmCEPackages = self.packages.${final.stdenv.hostPlatform.system};
       };
     } // flake-utils.lib.eachDefaultSystem (
       system:
