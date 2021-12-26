@@ -11,6 +11,8 @@
 , autoPatchelfHook
 , setJavaClassPath
 , makeWrapper
+, binutils
+, gcc
 , writeShellScriptBin
   # minimum dependencies
 , Foundation
@@ -42,7 +44,7 @@ let
     x86_64-darwin = "darwin-amd64";
   }.${stdenv.system} or (throw "Unsupported system: ${stdenv.system}");
 
-  runtimeDependencies = [ cups ]
+  runtimeDependencies = [ binutils cups stdenv.cc ]
     ++ lib.optionals gtkSupport [ cairo glib gtk3 ];
 
   muslPath = lib.makeBinPath [
