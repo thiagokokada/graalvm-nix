@@ -4,9 +4,13 @@ with pkgs;
 
 let
   graalvmCEPackages = import ./default.nix { inherit pkgs; };
+  graalvm = graalvmCEPackages.graalvm11-ce;
 in
 mkShell {
   buildInputs = [
-    graalvmCEPackages.graalvm11-ce
+    graalvm
   ];
+  shellHook = ''
+    export GRAALVM_HOME=${graalvm}
+  '';
 }
