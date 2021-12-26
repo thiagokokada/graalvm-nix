@@ -48,7 +48,7 @@ let
     ++ lib.optionals gtkSupport [ cairo glib gtk3 ];
 
   muslPath = lib.makeBinPath [
-    musl.dev
+    musl.dev gcc
     # GraalVM 21.3.0+ expects musl-gcc as <system>-musl-gcc
     (writeShellScriptBin "${stdenv.system}-musl-gcc" ''${musl.dev}/bin/musl-gcc "$@"'')
   ];
