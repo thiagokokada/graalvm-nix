@@ -7,27 +7,27 @@
 
 { stdenv
 , lib
-, fetchurl
 , autoPatchelfHook
-, setJavaClassPath
+, fetchurl
 , makeWrapper
-, binutils
-, gcc
+, setJavaClassPath
 , writeShellScriptBin
   # minimum dependencies
-, Foundation
 , alsa-lib
 , fontconfig
+, Foundation
 , freetype
 , glibc
+, musl
 , openssl
 , perl
 , unzip
 , xorg
 , zlib
-, musl
   # runtime dependencies
+, binutils
 , cups
+, gcc
   # runtime dependencies for GTK+ Look and Feel
 , gtkSupport ? true
 , cairo
@@ -44,16 +44,17 @@ let
     x86_64-darwin = "darwin-amd64";
   }.${stdenv.system} or (throw "Unsupported system: ${stdenv.system}");
 
-  runtimeDependencies = [ binutils cups stdenv.cc ]
-    ++ lib.optionals gtkSupport [ cairo glib gtk3 ];
+  runtimeLibraryPath = lib.makeLibraryPath
+    ([ cups ] ++ lib.optionals gtkSupport [ cairo glib gtk3 ]);
 
-  muslPath = lib.makeBinPath [
+  runtimeDependencies = lib.makeBinPath ([
+    binutils
+    gcc
+  ] ++ lib.optionals useMusl [
     musl.dev
     # GraalVM 21.3.0+ expects musl-gcc as <system>-musl-gcc
     (writeShellScriptBin "${stdenv.system}-musl-gcc" ''${musl.dev}/bin/musl-gcc "$@"'')
-  ];
-
-  runtimeLibraryPath = lib.makeLibraryPath runtimeDependencies;
+  ]);
 
   javaVersionPlatform = "${javaVersion}-${platform}";
 
@@ -207,7 +208,7 @@ let
         if patchelf --print-interpreter "$bin" &> /dev/null || head -n 1 "$bin" | grep '^#!' -q; then
           wrapProgram "$bin" \
             --prefix LD_LIBRARY_PATH : "${runtimeLibraryPath}" \
-            ${lib.optionalString useMusl ''--prefix PATH : "${muslPath}"''}
+            --prefix PATH : "${runtimeDependencies}"
         fi
       done
 
