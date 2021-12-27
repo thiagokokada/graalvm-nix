@@ -18,7 +18,6 @@
 , Foundation
 , freetype
 , glibc
-, musl
 , openssl
 , perl
 , unzip
@@ -28,8 +27,9 @@
 , binutils
 , cups
 , gcc
+, musl
   # runtime dependencies for GTK+ Look and Feel
-, gtkSupport ? true
+, gtkSupport ? stdenv.isLinux
 , cairo
 , glib
 , gtk3
@@ -49,11 +49,11 @@ let
 
   runtimeDependencies = lib.makeBinPath ([
     binutils
-    gcc
+    stdenv.cc
   ] ++ lib.optionals useMusl [
     musl.dev
     # GraalVM 21.3.0+ expects musl-gcc as <system>-musl-gcc
-    (writeShellScriptBin "${stdenv.system}-musl-gcc" ''${musl.dev}/bin/musl-gcc "$@"'')
+    (writeShellScriptBin "${stdenv.system}-musl-gcc" ''${lib.getDev musl}/bin/musl-gcc "$@"'')
   ]);
 
   javaVersionPlatform = "${javaVersion}-${platform}";
