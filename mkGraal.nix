@@ -190,11 +190,22 @@ let
         mkdir -p $lib/lib
         # jni.h expects jni_md.h to be in the header search path.
         ln -s $out/include/linux/*_md.h $out/include/
+
+        # copy-paste openjdk's preFixup
+        # Set JAVA_HOME automatically.
+        mkdir -p $out/nix-support
+        cat <<EOF > $out/nix-support/setup-hook
+          if [ -z "\''${JAVA_HOME-}" ]; then export JAVA_HOME=$out; fi
+        EOF
       '';
 
     dontStrip = true;
 
-    preFixup = ''
+    # Workaround for libssl.so.10 wanted by TruffleRuby
+    # Resulting TruffleRuby cannot use `openssl` library.
+    autoPatchelfIgnoreMissingDeps = stdenv.isDarwin;
+
+    preFixup = lib.optionalString (stdenv.isLinux) ''
       # We cannot use -exec since wrapProgram is a function but not a
       # command.
       #
@@ -208,13 +219,6 @@ let
         fi
       done
 
-      # copy-paste openjdk's preFixup
-      # Set JAVA_HOME automatically.
-      mkdir -p $out/nix-support
-      cat <<EOF > $out/nix-support/setup-hook
-        if [ -z "\''${JAVA_HOME-}" ]; then export JAVA_HOME=$out; fi
-      EOF
-
       find "$out" -name libfontmanager.so -exec \
         patchelf --add-needed libfontconfig.so {} \;
 
@@ -227,8 +231,10 @@ let
     # $out/bin/native-image needs zlib to build native executables.
     propagatedBuildInputs = [ setJavaClassPath zlib ] ++
       # On Darwin native-image calls clang and it
-      # tries to include <Foundation/Foundation.h>
-      lib.optionals stdenv.hostPlatform.isDarwin [ Foundation ];
+      # tries to include <Foundation/Foundation.h>,
+      # and Interactive Ruby (irb) requires OpenSSL
+      # headers.
+      lib.optionals stdenv.hostPlatform.isDarwin [ Foundation openssl ];
 
     doInstallCheck = true;
     installCheckPhase = ''
