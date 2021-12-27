@@ -51,7 +51,7 @@ let
     binutils
     stdenv.cc
   ] ++ lib.optionals useMusl [
-    musl.dev
+    (lib.getDev musl)
     # GraalVM 21.3.0+ expects musl-gcc as <system>-musl-gcc
     (writeShellScriptBin "${stdenv.system}-musl-gcc" ''${lib.getDev musl}/bin/musl-gcc "$@"'')
   ]);
@@ -86,9 +86,12 @@ let
       zlib
     ];
 
-    # Workaround for libssl.so.10 wanted by TruffleRuby
-    # Resulting TruffleRuby cannot use `openssl` library.
-    autoPatchelfIgnoreMissingDeps = true;
+    # Workaround for libssl.so.10/libcrypto.so.10 wanted by TruffleRuby
+    postPatch = ''
+      patchelf $out/languages/ruby/lib/mri/openssl.so \
+        --replace-needed libssl.so.10 libssl.so \
+        --replace-needed libcrypto.so.10 libcrypto.so
+    '';
 
     nativeBuildInputs = [ unzip perl autoPatchelfHook makeWrapper ];
 
