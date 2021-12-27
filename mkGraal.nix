@@ -86,13 +86,6 @@ let
       zlib
     ];
 
-    # Workaround for libssl.so.10/libcrypto.so.10 wanted by TruffleRuby
-    postPatch = ''
-      patchelf $out/languages/ruby/lib/mri/openssl.so \
-        --replace-needed libssl.so.10 libssl.so \
-        --replace-needed libcrypto.so.10 libcrypto.so
-    '';
-
     nativeBuildInputs = [ unzip perl autoPatchelfHook makeWrapper ];
 
     unpackPhase = ''
@@ -161,7 +154,7 @@ let
         '';
         copyClibrariesToLib = ''
           # add those libraries to $lib output too, so we can use them with
-          # `native-image -H:CLibraryPath=''${graalvm11-ce.lib}/lib ...` and reduce
+          # `native-image -H:CLibraryPath=''${lib.getLib graalvm11-ce}/lib ...` and reduce
           # closure size by not depending on GraalVM $out (that is much bigger)
           mkdir -p $lib/lib
           for f in ${glibc}/lib/*; do
@@ -224,15 +217,18 @@ let
 
       find "$out" -name libfontmanager.so -exec \
         patchelf --add-needed libfontconfig.so {} \;
+
+      # Workaround for libssl.so.10/libcrypto.so.10 wanted by TruffleRuby
+      patchelf $out/languages/ruby/lib/mri/openssl.so \
+        --replace-needed libssl.so.10 libssl.so \
+        --replace-needed libcrypto.so.10 libcrypto.so
     '';
 
     # $out/bin/native-image needs zlib to build native executables.
     propagatedBuildInputs = [ setJavaClassPath zlib ] ++
       # On Darwin native-image calls clang and it
-      # tries to include <Foundation/Foundation.h>,
-      # and Interactive Ruby (irb) requires OpenSSL
-      # headers.
-      lib.optionals stdenv.hostPlatform.isDarwin [ Foundation openssl ];
+      # tries to include <Foundation/Foundation.h>
+      lib.optionals stdenv.hostPlatform.isDarwin [ Foundation ];
 
     doInstallCheck = true;
     installCheckPhase = ''
